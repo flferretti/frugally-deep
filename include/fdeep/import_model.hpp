@@ -623,7 +623,11 @@ namespace internal {
     {
         assertion(data["inbound_nodes"].empty(),
             "input layer is not allowed to have inbound nodes");
-        const auto input_shape = create_tensor_shape_variable_leading_null(data["config"]["batch_shape"]);
+        const auto& config = data["config"];
+        const auto& shape = config.contains("batch_shape")
+            ? config.at("batch_shape")
+            : config.at("batch_input_shape");
+        const auto input_shape = create_tensor_shape_variable_leading_null(shape);
         return std::make_shared<input_layer>(name, input_shape);
     }
 
@@ -1721,6 +1725,17 @@ namespace internal {
 
     inline node create_node(const nlohmann::json& inbound_nodes_data)
     {
+        if (inbound_nodes_data.is_array()) {
+            node_connections connections;
+            for (const auto& connection : inbound_nodes_data) {
+                assertion(connection.is_array() && connection.size() == 4,
+                    "invalid Keras 2 node connection");
+                assertion(connection.at(3).is_object() && connection.at(3).empty(),
+                    "Keras 2 node keyword arguments are not supported");
+                connections.push_back(create_node_connection_model_layer(connection));
+            }
+            return node(connections);
+        }
         assertion(inbound_nodes_data["args"].is_array(), "node args need to be an array");
         std::vector<nlohmann::json> args = inbound_nodes_data["args"];
         if (args.front().is_array()) {
