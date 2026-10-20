@@ -84,6 +84,7 @@ _add_test(test_model_variable_test test_model_variable.json)
 _add_test(test_model_autoencoder_test test_model_autoencoder.json)
 _add_test(test_model_sequential_test test_model_sequential.json)
 _add_test(test_model_recurrent_test test_model_recurrent.json)
+_add_test(test_lstm_initial_state_test "")
 _add_test(test_model_legacy_test "")
 _add_test(readme_example_main readme_example_model.json)
 
@@ -94,6 +95,7 @@ add_custom_target(unittest
   COMMAND test_model_autoencoder_test
   COMMAND test_model_sequential_test
   COMMAND test_model_recurrent_test
+  COMMAND test_lstm_initial_state_test
   COMMAND test_model_legacy_test
   COMMAND readme_example_main
 
